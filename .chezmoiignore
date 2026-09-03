@@ -1,2 +1,24 @@
 README.md
 LICENSE
+
+# Paused 2026-09-03: only tmux and nvim are actively managed for now.
+# Everything else below stays in the source repo untouched but chezmoi
+# will not apply/overwrite it. Remove a line here to re-enable it.
+.bash_aliases
+.bashrc
+.chezmoiscripts/10-install-packages.sh
+.claude
+.config/Code
+.config/alacritty
+.config/bash
+.config/btop
+.config/gh
+.config/git
+.config/htop
+.config/opencode
+.config/resolve-opencl-vendors
+.gitconfig
+.inputrc
+.local
+.p10k.zsh
+.zshrc
