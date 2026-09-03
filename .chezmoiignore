@@ -19,6 +19,6 @@ LICENSE
 .config/resolve-opencl-vendors
 .gitconfig
 .inputrc
-.local
+.local/bin
 .p10k.zsh
 .zshrc
