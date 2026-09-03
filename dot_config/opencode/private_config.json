@@ -1,0 +1,57 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {},
+  "model": "lemonade",
+  "lsp": true,
+  "provider": {
+    "lemonade": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Lemonade",
+      "options": {
+        "baseURL": "http://127.0.0.1:9002/api/v1",
+        "apiKey": "lemonade"
+      },
+      "models": {
+        "Qwen3.6-35B-A3B-GGUF": {
+          "name": "Qwen 3.6 35B — iGPU, best for tools/websearch (default)",
+          "tool_call": true,
+          "reasoning": true
+        },
+        "qwen3.6-moe-35b-a3b-FLM": {
+          "name": "Qwen 3.6 35B — NPU, chat only (garbles long tool results)",
+          "tool_call": true,
+          "reasoning": true
+        },
+        "gemma4-it-e4b-FLM": {
+          "name": "Gemma 4 E4B — NPU, small/fast",
+          "tool_call": true,
+          "reasoning": true
+        },
+        "granite-4.0-h-tiny-GGUF": {
+          "name": "Granite 4.0 Tiny — iGPU, 1M context",
+          "tool_call": true
+        },
+        "Qwen3.8-27B-GGUF-Q4_K_M": {
+          "name": "Qwen3.8-27B-GGUF-Q4_K_M (iGPU)",
+          "tool_call": true,
+          "reasoning": false,
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        }
+      }
+    },
+    "openrouter": {
+      "models": {
+        "deepseek/deepseek-v4-flash-0731": {
+          "options": {
+            "reasoning": {
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

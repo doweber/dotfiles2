@@ -1,0 +1,42 @@
+[user]
+  name = {{ .name }}
+  email = {{ .email }}
+[color]
+  ui = auto
+  branch = auto
+  diff = auto
+  status = auto
+[alias]
+  st = status
+  ci = commit -a -v
+  br = branch
+  co = checkout
+  cloner = clone --recursive
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)%Creset' --abbrev-commit
+[push]
+  default = current
+[core]
+  editor = /usr/bin/vim
+[difftool]
+  prompt = false
+[diff]
+  tool = vimdiff
+[url "git@bitbucket.org:"]
+  insteadOf = https://bitbucket.org/
+[url "ssh://git@github.com/"]
+  insteadOf = https://github.com/
+[filter "lfs"]
+  required = true
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+[init]
+  defaultBranch = main
+[pull]
+  rebase = false
+[credential "https://github.com"]
+  helper =
+  helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+  helper =
+  helper = !/usr/bin/gh auth git-credential

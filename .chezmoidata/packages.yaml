@@ -1,0 +1,128 @@
+# Packages installed by .chezmoiscripts/run_onchange_before_10-install-packages.sh.tmpl
+# on Arch-based systems whenever this file changes. Everything is installed with
+# --needed, so already-present packages are skipped.
+#
+# Keep this to what you want on day one of a new machine. The desktop environment
+# and the distro's own meta packages are left to the installer.
+packages:
+  pacman:
+    cli:
+      - base-devel
+      - bash-completion
+      - btop
+      - htop
+      - glances
+      - duf
+      - tree
+      - ripgrep
+      - fastfetch
+      - plocate
+      - pkgfile
+      - wget
+      - rsync
+      - unzip
+      - unrar
+      - pv
+      - less
+      - which
+      - man-db
+      - man-pages
+      - micro
+      - nano
+      - neovim
+      - vim
+      - tmux
+      - direnv
+      - git
+      - git-lfs
+      - github-cli
+      - meld
+      - tree-sitter-cli
+      - yt-dlp
+      - tcpdump
+      - nethogs
+      - iotop
+      - bind
+      - inetutils
+      - smartmontools
+      - pacman-contrib
+      - reflector
+      - rebuild-detector
+      - chezmoi
+      - openssh
+      - tailscale
+      - localsend
+    dev:
+      - docker
+      - docker-compose
+      - go
+      - delve
+      - nvm
+      - uv
+      - python
+      - python-pip
+      - duckdb
+      - aws-cli-v2
+      - dbeaver
+      - code
+      - claude-code
+      - gemini-cli
+      - mermaid-cli
+      - ollama
+      - lemonade-server
+      - fastflowlm
+    terminals:
+      - ghostty
+      - alacritty
+      - kitty
+    fonts:
+      - ttf-meslo-nerd
+      - ttf-agave-nerd
+      - ttf-dejavu-nerd
+      - ttf-nerd-fonts-symbols
+      - ttf-dejavu
+      - ttf-liberation
+      - noto-fonts
+      - noto-fonts-emoji
+      - awesome-terminal-fonts
+    desktop:
+      - firefox
+      - chromium
+      - gimp
+      - libreoffice-fresh
+      - vlc
+      - blender
+      - godot
+      - filezilla
+      - cursor-bin
+  aur:
+    - 1password
+    - 1password-cli
+    - vop-bin
+    - opencode-bin
+    - crush-bin
+    - playwright-cli
+    - postman-bin
+    - slack-desktop-wayland
+    - typora
+    - ngrok
+    - redisinsight-bin
+    - lmstudio-bin
+    - appimagetool-bin
+    - linuxdeploy-appimage
+  # Host-specific hardware/driver packages, keyed by hostname.
+  hosts:
+    d-tux2:
+      pacman:
+        - davinci-resolve
+        - opencl-mesa
+        - rocm-smi-lib
+        - fprintd
+      aur:
+        - tuxedo-drivers-dkms
+        - tuxedo-control-center-bin
+        - tuxedo-yt6801-dkms-git
+        - displaylink
+        - evdi-dkms
+        - amdxdna-driver-bin
+        - libfprint-cs9711-git

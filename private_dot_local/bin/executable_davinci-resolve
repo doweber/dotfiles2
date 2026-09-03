@@ -1,0 +1,11 @@
+#!/bin/bash
+# Hide the Xilinx/XRT OpenCL ICD from Resolve: loading it crashes Resolve at
+# startup (libxrt_coreutil's std::filesystem calls resolve into Resolve's
+# bundled libProResRAW.so, ABI mismatch -> SIGSEGV in gpudetect).
+export OCL_ICD_VENDORS="$HOME/.config/resolve-opencl-vendors"
+
+# UI scale is NOT set here: Resolve ignores all Qt scaling env vars
+# (QT_SCALE_FACTOR, QT_FONT_DPI, QT_DEVICE_PIXEL_RATIO). It is set via
+# <DisplayScale> in ~/.local/share/DaVinciResolve/configs/config.user.xml.
+
+exec /opt/resolve/bin/resolve "$@"

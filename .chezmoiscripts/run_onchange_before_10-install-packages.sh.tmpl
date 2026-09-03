@@ -1,0 +1,62 @@
+{{- if and (eq .chezmoi.os "linux") (or (eq .chezmoi.osRelease.id "arch") (eq (.chezmoi.osRelease.idLike | default "") "arch")) -}}
+#!/bin/bash
+# Installs the packages declared in .chezmoidata/packages.yaml.
+# Re-runs automatically whenever that file changes:
+# packages.yaml hash: {{ include ".chezmoidata/packages.yaml" | sha256sum }}
+set -euo pipefail
+
+PACMAN_PKGS=(
+{{- range $group, $pkgs := .packages.pacman }}
+  # {{ $group }}
+{{- range $pkgs }}
+  {{ . | quote }}
+{{- end }}
+{{- end }}
+)
+
+AUR_PKGS=(
+{{- range .packages.aur }}
+  {{ . | quote }}
+{{- end }}
+)
+
+{{ if hasKey .packages.hosts .chezmoi.hostname -}}
+{{- $host := index .packages.hosts .chezmoi.hostname -}}
+# host-specific: {{ .chezmoi.hostname }}
+PACMAN_PKGS+=(
+{{- range $host.pacman }}
+  {{ . | quote }}
+{{- end }}
+)
+AUR_PKGS+=(
+{{- range $host.aur }}
+  {{ . | quote }}
+{{- end }}
+)
+{{- end }}
+
+echo "==> pacman: ${#PACMAN_PKGS[@]} packages"
+sudo pacman -S --needed --noconfirm "${PACMAN_PKGS[@]}"
+
+# AUR helper: prefer paru, fall back to yay, bootstrap paru if neither exists.
+if command -v paru >/dev/null; then
+  AUR=paru
+elif command -v yay >/dev/null; then
+  AUR=yay
+else
+  echo "==> bootstrapping paru from the AUR"
+  tmp=$(mktemp -d)
+  git clone --depth 1 https://aur.archlinux.org/paru-bin.git "$tmp/paru-bin"
+  (cd "$tmp/paru-bin" && makepkg -si --noconfirm)
+  rm -rf "$tmp"
+  AUR=paru
+fi
+
+if [ "${#AUR_PKGS[@]}" -gt 0 ]; then
+  echo "==> $AUR: ${#AUR_PKGS[@]} AUR packages"
+  "$AUR" -S --needed --noconfirm "${AUR_PKGS[@]}"
+fi
+{{- else -}}
+#!/bin/bash
+echo "install-packages: not an Arch-based system, skipping package install."
+{{- end }}

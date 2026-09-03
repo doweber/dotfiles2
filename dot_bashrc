@@ -1,0 +1,30 @@
+# ~/.bashrc — managed by chezmoi (github.com/doweber/dotfiles2)
+
+# Only for interactive shells
+[[ $- != *i* ]] && return
+
+export TERM=screen-256color
+
+# PATH
+export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
+
+# Completion
+[ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
+if [ -d "$HOME/.local/share/bash-completion/completions" ]; then
+  for f in "$HOME/.local/share/bash-completion/completions"/*; do
+    [ -f "$f" ] && . "$f"
+  done
+fi
+
+# Aliases and prompt
+[ -r ~/.bash_aliases ] && . ~/.bash_aliases
+[ -r ~/.config/bash/prompt.sh ] && . ~/.config/bash/prompt.sh
+
+# direnv
+command -v direnv >/dev/null && eval "$(direnv hook bash)"
+
+# nvm (Arch package installs to /usr/share/nvm)
+[ -r /usr/share/nvm/init-nvm.sh ] && . /usr/share/nvm/init-nvm.sh
+
+# 1Password shell plugins (aws, etc.)
+[ -r "$HOME/.config/op/plugins.sh" ] && . "$HOME/.config/op/plugins.sh"

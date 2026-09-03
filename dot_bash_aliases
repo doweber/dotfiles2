@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# docker
+alias d="docker"
+alias dc="docker compose"
+alias dcl="docker compose logs -f --tail=30"
+alias dclf="docker compose logs -f --tail=1"
+alias psql="docker run -ti --rm alpine/psql"
+
+# NOTE: this ffmpeg only sees files under $PWD. Use /usr/bin/ffmpeg for anything else.
+alias ffmpeg='docker run --rm --user $(id -u):$(id -g) -v "$(pwd)":/work -w /work jrottenberg/ffmpeg:4.1-scratch'
+
+# go
+alias grun="go run"
+alias gra="go run ./*.go"
+alias grm="go run ./main.go"
+
+# git
+alias gf="git fetch"
+alias gp="git pull"
+alias gpp="git pull && git push"
+alias gca="git commit -a -m"
+alias glg="git log --graph --pretty=oneline --abbrev-commit"
+alias glall="git log --graph --simplify-by-decoration --pretty=format:'%d' --all"
+
+# misc
+alias tmuxa="tmux attach || tmux"
+alias serve='caddy file-server --listen :2015'
+
+# Dockerfile build, e.g., $dbu tcnksm/test
+# IMAGE github.com/foo/bar:v0.1.2
+# TAG github.com/foo/bar:latest
+dbu() {
+  if [ -n "$1" ]; then
+    IMAGENAME="$1"
+  fi
+
+  if [[ -z "$IMAGENAME" && `head -1 ./Dockerfile | grep -c '^#\s\?IMAGE'` = 1 ]]; then
+    IMAGENAME=$(head -1 ./Dockerfile | awk '{print $3}')
+  fi
+
+  if [ -n "$IMAGENAME" ]; then
+    exec 5>&1
+    ID=$($DOCKERCMD build -t=$IMAGENAME . | tee >(cat - >&5) | tail -1 | awk '{print $NF}')
+    echo -e "Built image: \033[32m$IMAGENAME\033[39m";
+  else
+    exec 5>&1
+    ID=$($DOCKERCMD build . | tee >(cat - >&5) | tail -1 | awk '{print $NF}')
+  fi
+
+  for tag in $(cat "./Dockerfile" | grep "^#\s\?TAG" | awk '{print $NF}'); do
+    echo -e "Setting tag: \033[32m$tag\033[39m";
+    $DOCKERCMD tag -f $ID $tag;
+  done
+
+  unset IMAGENAME
+}
+
+## ls
+alias ls='ls -hF --color=auto'
+alias lr='ls -R'                    # recursive ls
+alias ll='ls -l'
+alias la='ll -A'
+alias lx='ll -BX'                   # sort by extension
+alias lz='ll -rS'                   # sort by size
+alias lt='ll -rt'                   # sort by date
+alias lm='la | more'

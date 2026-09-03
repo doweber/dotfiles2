@@ -1,0 +1,102 @@
+#!/bin/bash
+# resolve-transcode — batch-transcode camera footage into an editing codec
+# DaVinci Resolve (free, Linux) can decode: DNxHR .mov + PCM audio.
+# It CANNOT decode H.264/H.265, so files straight off a Canon/Pixel/etc.
+# import as "media offline" (audio-only). This converts them.
+#
+# Usage:
+#   resolve-transcode [options] PATH [PATH ...]
+#     PATH may be files or directories (directories are scanned recursively).
+#
+# Options:
+#   -o DIR        Output directory (default: a "DNxHR/" folder beside each input)
+#   -p PROFILE    DNxHR profile: dnxhr_lb|dnxhr_sq|dnxhr_hq|dnxhr_hqx (default: dnxhr_hq)
+#   -r RES        Scale to WxH, or "native" to keep source size (default: 1920x1080)
+#   -n            Dry run — show what would happen, transcode nothing
+#   -h            This help
+#
+# Notes:
+#   * Originals are never modified. Existing outputs are skipped (safe to re-run).
+#   * Files already in an edit codec (DNxHR/ProRes/Cineform) are skipped.
+#   * Audio is converted to PCM (pcm_s16le); files without audio still work.
+#   * Frame rate is preserved — set your Resolve project frame rate to match.
+
+set -u
+FF=/usr/bin/ffmpeg          # NOT `ffmpeg`: that is a docker alias that can't see most paths
+FP=/usr/bin/ffprobe
+PROFILE=dnxhr_hq
+RES=1920x1080
+OUTDIR=""
+DRY=0
+
+die(){ echo "resolve-transcode: $*" >&2; exit 1; }
+usage(){ sed -n '2,/^$/p' "$0" | sed 's/^# \?//'; exit "${1:-0}"; }
+
+while getopts ":o:p:r:nh" opt; do
+  case "$opt" in
+    o) OUTDIR="$OPTARG";;
+    p) PROFILE="$OPTARG";;
+    r) RES="$OPTARG";;
+    n) DRY=1;;
+    h) usage 0;;
+    :) die "option -$OPTARG requires an argument";;
+    *) die "unknown option -$OPTARG (try -h)";;
+  esac
+done
+shift $((OPTIND-1))
+[ "$#" -ge 1 ] || usage 1
+[ -x "$FF" ] || die "$FF not found"
+
+case "$PROFILE" in dnxhr_lb|dnxhr_sq|dnxhr_hq) PIXFMT=yuv422p;;
+  dnxhr_hqx|dnxhr_444) PIXFMT=yuv422p10le;;
+  *) die "invalid profile: $PROFILE";; esac
+
+if [ "$RES" = native ]; then VF=(); else
+  wh=${RES/x/:}; [ "$wh" != "$RES" ] || die "bad -r (use WxH or 'native'): $RES"
+  VF=(-vf "scale=$wh")
+fi
+
+# extensions we treat as camera source footage
+is_video(){ case "${1,,}" in *.mov|*.mp4|*.m4v|*.mts|*.m2ts|*.avi|*.mkv|*.mxf|*.mpg|*.mpeg|*.wmv|*.3gp) return 0;; *) return 1;; esac; }
+
+n_ok=0; n_skip=0; n_fail=0
+
+do_one(){
+  local in="$1" outbase outdir out vcodec
+  if [ -n "$OUTDIR" ]; then outdir="$OUTDIR"; else outdir="$(dirname "$in")/DNxHR"; fi
+  outbase="$(basename "${in%.*}").mov"
+  out="$outdir/$outbase"
+
+  vcodec=$("$FP" -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 "$in" 2>/dev/null)
+  if [ -z "$vcodec" ]; then echo "skip (no video stream): $in"; n_skip=$((n_skip+1)); return; fi
+  case "$vcodec" in dnxhd|prores|cfhd)
+      echo "skip (already edit codec $vcodec): $in"; n_skip=$((n_skip+1)); return;; esac
+  if [ -s "$out" ]; then echo "skip (output exists): $out"; n_skip=$((n_skip+1)); return; fi
+
+  if [ "$DRY" = 1 ]; then echo "would transcode: $in  ->  $out  [$vcodec -> $PROFILE $RES]"; n_ok=$((n_ok+1)); return; fi
+
+  mkdir -p "$outdir"
+  echo ">>> $in  ->  $out  [$vcodec -> $PROFILE]"
+  if nice -n 10 "$FF" -hide_banner -nostdin -y -i "$in" \
+        -map 0:v:0 -map 0:a:0? "${VF[@]}" \
+        -c:v dnxhd -profile:v "$PROFILE" -pix_fmt "$PIXFMT" \
+        -c:a pcm_s16le "$out" </dev/null 2>>"${out%.mov}.ffmpeg.log"; then
+    echo "OK: $out ($(du -h "$out" | cut -f1))"; n_ok=$((n_ok+1))
+  else
+    echo "FAIL: $in (see ${out%.mov}.ffmpeg.log)" >&2; rm -f "$out"; n_fail=$((n_fail+1))
+  fi
+}
+
+for arg in "$@"; do
+  if [ -d "$arg" ]; then
+    while IFS= read -r -d '' f; do is_video "$f" && do_one "$f"; done \
+      < <(find "$arg" -type f -not -path '*/DNxHR/*' -print0 | sort -z)
+  elif [ -f "$arg" ]; then
+    is_video "$arg" && do_one "$arg" || echo "skip (not a known video type): $arg"
+  else
+    echo "skip (not found): $arg" >&2; n_fail=$((n_fail+1))
+  fi
+done
+
+echo "---"; echo "done: $n_ok transcoded, $n_skip skipped, $n_fail failed"
+[ "$n_fail" -eq 0 ]
