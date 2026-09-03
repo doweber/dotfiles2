@@ -8,27 +8,10 @@ packages:
   pacman:
     cli:
       - base-devel
-      - bash-completion
       - btop
-      - htop
-      - glances
-      - duf
-      - tree
       - ripgrep
       - fastfetch
-      - plocate
-      - pkgfile
       - wget
-      - rsync
-      - unzip
-      - unrar
-      - pv
-      - less
-      - which
-      - man-db
-      - man-pages
-      - micro
-      - nano
       - neovim
       - vim
       - tmux
@@ -39,19 +22,9 @@ packages:
       - meld
       - tree-sitter-cli
       - yt-dlp
-      - tcpdump
-      - nethogs
-      - iotop
-      - bind
-      - inetutils
-      - smartmontools
-      - pacman-contrib
-      - reflector
-      - rebuild-detector
       - chezmoi
       - openssh
       - tailscale
-      - localsend
     dev:
       - docker
       - docker-compose
@@ -63,53 +36,28 @@ packages:
       - python-pip
       - duckdb
       - aws-cli-v2
-      - dbeaver
       - code
       - claude-code
       - gemini-cli
-      - mermaid-cli
-      - ollama
-      - lemonade-server
-      - fastflowlm
     terminals:
       - ghostty
       - alacritty
       - kitty
     fonts:
       - ttf-meslo-nerd
-      - ttf-agave-nerd
-      - ttf-dejavu-nerd
-      - ttf-nerd-fonts-symbols
-      - ttf-dejavu
-      - ttf-liberation
-      - noto-fonts
-      - noto-fonts-emoji
-      - awesome-terminal-fonts
     desktop:
       - firefox
       - chromium
       - gimp
-      - libreoffice-fresh
       - vlc
-      - blender
-      - godot
       - filezilla
-      - cursor-bin
   aur:
     - 1password
     - 1password-cli
-    - vop-bin
     - opencode-bin
     - crush-bin
     - playwright-cli
-    - postman-bin
-    - slack-desktop-wayland
     - typora
-    - ngrok
-    - redisinsight-bin
-    - lmstudio-bin
-    - appimagetool-bin
-    - linuxdeploy-appimage
   # Host-specific hardware/driver packages, keyed by hostname.
   hosts:
     d-tux2:

@@ -1,6 +1,8 @@
 {{- if and (eq .chezmoi.os "linux") (or (eq .chezmoi.osRelease.id "arch") (eq (.chezmoi.osRelease.idLike | default "") "arch")) -}}
 #!/bin/bash
 # Installs the packages declared in .chezmoidata/packages.yaml.
+# Uses -Syu so the package database is refreshed first (plain -S against a stale
+# database fails with 404s once mirrors move on; -Sy alone risks partial upgrades).
 # Re-runs automatically whenever that file changes:
 # packages.yaml hash: {{ include ".chezmoidata/packages.yaml" | sha256sum }}
 set -euo pipefail
@@ -36,7 +38,7 @@ AUR_PKGS+=(
 {{- end }}
 
 echo "==> pacman: ${#PACMAN_PKGS[@]} packages"
-sudo pacman -S --needed --noconfirm "${PACMAN_PKGS[@]}"
+sudo pacman -Syu --needed --noconfirm "${PACMAN_PKGS[@]}"
 
 # AUR helper: prefer paru, fall back to yay, bootstrap paru if neither exists.
 if command -v paru >/dev/null; then
