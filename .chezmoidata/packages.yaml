@@ -73,4 +73,5 @@ packages:
         - displaylink
         - evdi-dkms
         - amdxdna-driver-bin
-        - libfprint-cs9711-git
+        # - libfprint-cs9711-git  # PKGBUILD's prepare() force-merges a stale sigfm fork branch into
+        # current libfprint master and now conflicts (2026-09-03); re-enable once AUR pkg is fixed
